@@ -18,11 +18,12 @@ def get_duration(mbid='', artist='', track=''):
                     &mbid=" + mbid \
                  + "&format=json"
         # print("@19 url =", url) # test
-        url_response = urlopen(url)
-        info = json.loads(url_response.read().decode('utf-8'))
-        if 'track' in info:
-            is_found = True
-            duration = info['track']['duration']
+        with urlopen(url) as url_response:
+        # url_response = urlopen(url)
+            info = json.loads(url_response.read().decode('utf-8'))
+            if 'track' in info:
+                is_found = True
+                duration = info['track']['duration']
     #if mbid == '' and not is_found:
     else:
         # artist_name = quote("Underworld")
@@ -39,16 +40,17 @@ def get_duration(mbid='', artist='', track=''):
                  + "&track=" + track_name \
                  + "&format=json"
         # url_name = url_name.encode("utf-8")
-        url_response = urlopen(url)
-        info = json.loads(url_response.read().decode('utf-8'))
-        if 'track' in info:
-            is_found = True
-            duration = info['track']['duration']
+        with urlopen(url) as url_response:
+        # url_response = urlopen(url)
+            info = json.loads(url_response.read().decode('utf-8'))
+            if 'track' in info:
+                is_found = True
+                duration = info['track']['duration']
         # print(url_name)
         # url_response = urlopen(url_mbid)
     # url_response = urlopen(url)
     # info = json.loads(url_response.read().decode('utf-8'))
-    pprint(info)
+    # pprint(info)
     # print(type(info['track']))
     # print(info['track']['duration'])
     if is_found:

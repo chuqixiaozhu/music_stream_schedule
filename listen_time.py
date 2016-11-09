@@ -2,11 +2,11 @@ import csv
 import sys
 import datetime
 
-with open('../data/user_000001.tsv', newline='') as user_data_in,\
+with open('../data/user_000001_small.tsv', newline='') as user_data_in,\
      open('../data/user_000001_listen_time.tsv', 'w') as user_listen_time_out:
      user_data_in = csv.reader(user_data_in, delimiter='\t')
      first_line_flag = True
-     for record_now in user_data_in: # Corrent line: record_now
+    for record_now in user_data_in: # Corrent line: record_now
         if first_line_flag:
             first_line_flag = False
             record_last = record_now # Sceond line: record_last
@@ -28,12 +28,12 @@ with open('../data/user_000001.tsv', newline='') as user_data_in,\
                                   int(origin_time_last[14:16]),\
                                   int(origin_time_last[17:19]))
 
-        # Computer duration
-        duration = (datetime_last - datetime_now)\
+        # Computer listen time
+        listen_time = (datetime_last - datetime_now)\
                  / datetime.timedelta(milliseconds=1)
 
         # Write results to the output file
-        new_combine = [record_now[0], str(duration)]\
+        new_combine = [record_now[0], str(listen_time)]\
                    + record_now[2:]
         record_new = '\t'.join(new_combine)
         user_listen_time_out.write(record_new + '\n')

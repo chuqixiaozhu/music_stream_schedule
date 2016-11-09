@@ -3,7 +3,7 @@ import sys
 import datetime
 
 with open('../data/user_000001.tsv', newline='') as user_data_in,\
-     open('../data/user_000001_duration.tsv', 'w') as user_listen_time_out:
+     open('../data/user_000001_listen_time.tsv', 'w') as user_listen_time_out:
      user_data_in = csv.reader(user_data_in, delimiter='\t')
      first_line_flag = True
      for record_now in user_data_in: # Corrent line: record_now

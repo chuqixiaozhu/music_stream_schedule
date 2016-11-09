@@ -28,9 +28,9 @@ def get_duration(mbid='', artist='', track=''):
                     is_found = True
                     duration = info['track']['duration']
         except (HTTPError, URLError, timeout):
-            print("Error: get_duration: time out")
+            print("Error: get_duration: time out", flush=True)
         except:
-            print("Error: get_duration: something wrong when urlopen")
+            print("Error: get_duration: something wrong when urlopen", flush=True)
 
         
 
@@ -58,9 +58,9 @@ def get_duration(mbid='', artist='', track=''):
                     is_found = True
                     duration = info['track']['duration']
         except (timeout):
-            print("Error: get_duration: time out")
+            print("Error: get_duration: time out", flush=True)
         except:
-            print("Error: get_duration: something wrong when urlopen")
+            print("Error: get_duration: something wrong when urlopen", flush=True)
         # print(url_name)
         # url_response = urlopen(url_mbid)
     # url_response = urlopen(url)

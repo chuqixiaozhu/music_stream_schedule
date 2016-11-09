@@ -5,8 +5,10 @@ from urllib.request import urlopen
 import json
 from pprint import pprint
 from urllib.parse import quote
+from socket import timeout
 
 def get_duration(mbid='', artist='', track=''):
+    """User mbid or (artist name, track name) to get a song's length by Last.fm's API"""
     API_KEY = '6b4e8353c48564c23e4562ae16ab7802'
     API_SECRET = 'a1da6abe8ca8bede832d19d36d7800a8'
 
@@ -18,12 +20,20 @@ def get_duration(mbid='', artist='', track=''):
                     &mbid=" + mbid \
                  + "&format=json"
         # print("@19 url =", url) # test
-        with urlopen(url) as url_response:
-        # url_response = urlopen(url)
-            info = json.loads(url_response.read().decode('utf-8'))
-            if 'track' in info:
-                is_found = True
-                duration = info['track']['duration']
+        try:
+            with urlopen(url) as url_response:
+            # url_response = urlopen(url)
+                info = json.loads(url_response.read().decode('utf-8'))
+                if 'track' in info:
+                    is_found = True
+                    duration = info['track']['duration']
+        except (HTTPError, URLError, timeout):
+            print("Error: get_duration: time out")
+        except:
+            print("Error: get_duration: something wrong when urlopen")
+
+        
+
     #if mbid == '' and not is_found:
     else:
         # artist_name = quote("Underworld")
@@ -40,12 +50,17 @@ def get_duration(mbid='', artist='', track=''):
                  + "&track=" + track_name \
                  + "&format=json"
         # url_name = url_name.encode("utf-8")
-        with urlopen(url) as url_response:
-        # url_response = urlopen(url)
-            info = json.loads(url_response.read().decode('utf-8'))
-            if 'track' in info:
-                is_found = True
-                duration = info['track']['duration']
+        try:
+            with urlopen(url) as url_response:
+            # url_response = urlopen(url)
+                info = json.loads(url_response.read().decode('utf-8'))
+                if 'track' in info:
+                    is_found = True
+                    duration = info['track']['duration']
+        except (timeout):
+            print("Error: get_duration: time out")
+        except:
+            print("Error: get_duration: something wrong when urlopen")
         # print(url_name)
         # url_response = urlopen(url_mbid)
     # url_response = urlopen(url)

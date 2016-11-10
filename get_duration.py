@@ -5,7 +5,7 @@ from urllib.request import urlopen
 import json
 from pprint import pprint
 from urllib.parse import quote
-from socket import timeout
+# from socket import timeout
 
 def get_duration(mbid='', artist='', track=''):
     """User mbid or (artist name, track name) to get a song's length by Last.fm's API"""
@@ -27,10 +27,10 @@ def get_duration(mbid='', artist='', track=''):
                 if 'track' in info:
                     is_found = True
                     duration = info['track']['duration']
-        except (HTTPError, URLError, timeout):
-            print("Error: get_duration: time out", flush=True)
+        # except (timeout):
+            # print("Error: get_duration: time out", flush=True)
         except:
-            print("Error: get_duration: something wrong when urlopen", flush=True)
+            print("Error: get_duration: urlopen: maybe time out", flush=True)
 
         
 
@@ -57,10 +57,10 @@ def get_duration(mbid='', artist='', track=''):
                 if 'track' in info:
                     is_found = True
                     duration = info['track']['duration']
-        except (timeout):
-            print("Error: get_duration: time out", flush=True)
+        # except (timeout):
+        #     print("Error: get_duration: time out", flush=True)
         except:
-            print("Error: get_duration: something wrong when urlopen", flush=True)
+            print("Error: get_duration: urlopen: maybe time out", flush=True)
         # print(url_name)
         # url_response = urlopen(url_mbid)
     # url_response = urlopen(url)

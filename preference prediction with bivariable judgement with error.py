@@ -118,7 +118,7 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
     discript += "\nNumber of test: {}".format(test_count)
     print("Precision of skip judge: {:.1f}%".format(ratio_predict * 100))
     discript += "\nPrecision of skip judge: {:.1f}%".format(ratio_predict * 100)
-    # No. of Tests:
+
     print ("mean of error: {}".format(np.mean(error)))
     discript += "\nmean of error: {}".format(np.mean(error))
     print ("max of error: {}".format(error.max()))

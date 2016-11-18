@@ -131,7 +131,6 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
     plt.ylabel('number')
     plt.title(r'Histogram of prediction error')
 
-    plt.savefig('test.png')
     # plt.show()
     file_name = in_filename[:-9]
     out_file_text = out_address + file_name + '_bi_predict_with_error.txt'

@@ -56,7 +56,8 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
     #gmm1.fit(data[:,:2],y = zero_y[:,2])
     #training phase
     train_start = 0
-    train_end = 22000
+    # train_end = 22000
+    train_end = int(np.floor(data.shape[0] * 2/3))
     estimator.fit(data[train_start:train_end,:2],y = zero_y[train_start:train_end,2])
 
     #training another model to find the exact number
@@ -69,8 +70,10 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
 
     #predicting phase
     #result = gmm1.predict(data[300:400,:2])
-    test_start = 22000
+    # test_start = 22000
+    test_start = train_end
     test_end = data.shape[0]
+
     # test_index = [t for t in xrange(test_start,test_end)]
     test_index = [t for t in range(test_start,test_end)]
     try:
@@ -106,18 +109,23 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
         print("Exception: the 2nd prediction failed.")
         return
     result2 = result2.astype(float)
-    error = result2-data[index,2]
+    # error = result2-data[index,2]
+    error = abs(result2-data[index,2])
+    mse = sum(error**2) / len(error)
+
     test_count = len(error)
     error_mean = np.mean(error)
     right_count = 0
     for delta in error:
-        if abs(delta) < error_mean/2:
+        # if abs(delta) <= error_mean/2:
+        if abs(delta) <= error_mean:
+        # if abs(delta) <= mse:
             right_count += 1
     ratio_predict = right_count / test_count
     print("Number of test: {}".format(test_count))
     discript += "\nNumber of test: {}".format(test_count)
-    print("Precision of skip judge: {:.1f}%".format(ratio_predict * 100))
-    discript += "\nPrecision of skip judge: {:.1f}%".format(ratio_predict * 100)
+    print("Precision of skip judge: {:f}%".format(ratio_predict * 100))
+    discript += "\nPrecision of skip judge: {:f}%".format(ratio_predict * 100)
 
     print ("mean of error: {}".format(np.mean(error)))
     discript += "\nmean of error: {}".format(np.mean(error))
@@ -140,7 +148,8 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
     plt.savefig(out_file_png)
 
 if __name__ == '__main__':
-    data_address_prefix = '/scratch/zpeng.scratch/pppp/music/data/listen_tmp/'
+    # data_address_prefix = '/scratch/zpeng.scratch/pppp/music/data/listen_tmp/'
+    data_address_prefix = '/scratch/zpeng.scratch/pppp/music/data/listen/'
     result_address_prefix = \
         '/scratch/zpeng.scratch/pppp/music/data/predict_bi_with_error/'
     data_files = os.listdir(data_address_prefix)

@@ -23,11 +23,13 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
 
     # tansfer string to number so that we can train
     data = []
+    track_time_all = []
     # with open('/scratch/zpeng.scratch/pppp/music/data/listen/user_000002_time.tsv') as f:
     with open(in_file, 'r') as f:
         for line in f:
             # song,l,artist,percentage,a4,a5,a6 = line.split(",")
             userid,lt,tt,percentage,artid,artist,traid,song = line.split('\t')
+            track_time_all.append(float(tt)/1000)
             bb = [bin(ord(c))[2:] for c in song]
             px = 0
             for item in bb:
@@ -73,7 +75,6 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
     # test_start = 22000
     test_start = train_end
     test_end = data.shape[0]
-
     # test_index = [t for t in xrange(test_start,test_end)]
     test_index = [t for t in range(test_start,test_end)]
     try:
@@ -93,16 +94,16 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
         if item==zero_y[i+test_start,2]:
             counter += 1
         i+=1
-
-    print ("precision of 0-1 judge: {0:.0f}%".format(float(counter)/len(test_index)*100))
-    discript = "precision of 0-1 judge: {0:.0f}%".format(float(counter)/len(test_index)*100)
+    tmp_str = "precision of 0-1 judge: {0:.1f}%".format(float(counter)/len(test_index)*100)
+    # print ("precision of 0-1 judge: {0:.0f}%".format(float(counter)/len(test_index)*100))
+    print(tmp_str)
+    discript = tmp_str
 
     index = np.copy(test_index)
     index = list(index)
     for t in none_zero_index[0]:
         tt = t+test_start
         index.remove(tt)
-    
     try:
         result2 = estimator2.predict(data[index,:2])
     except:
@@ -117,22 +118,42 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
     error_mean = np.mean(error)
     right_count = 0
     for delta in error:
-        # if abs(delta) <= error_mean/2:
-        if abs(delta) <= error_mean:
+        if abs(delta) <= error_mean/2:
+        # if abs(delta) <= error_mean:
         # if abs(delta) <= mse:
             right_count += 1
     ratio_predict = right_count / test_count
-    print("Number of test: {}".format(test_count))
-    discript += "\nNumber of test: {}".format(test_count)
-    print("Precision of skip judge: {:f}%".format(ratio_predict * 100))
-    discript += "\nPrecision of skip judge: {:f}%".format(ratio_predict * 100)
+    # print("Number of test: {}".format(test_count))
+    tmp_str = "Number of test: {}".format(test_count)
+    print(tmp_str)
+    discript += '\n' + tmp_str
+    # print("Precision of skip judge: {:f}%".format(ratio_predict * 100))
+    tmp_str = "Precision of skip judge: {:.1f}%".format(ratio_predict * 100)
+    print(tmp_str)
+    discript += '\n' + tmp_str
+    # track_time_all = np.asarray(track_time_all[test_start:], dtype=float)
+    track_time_test_all = []
+    for i in index:
+        track_time_test_all.append(track_time_all[i])
+    track_time_mean = np.mean(track_time_test_all)
+    ratio_error2tracktime = error_mean / track_time_mean
+    tmp_str = \
+        "Ratio of mean error to mean track time: {:.1f}%".format(ratio_error2tracktime*100)
+    print(tmp_str)
+    discript += '\n' + tmp_str
 
-    print ("mean of error: {}".format(np.mean(error)))
-    discript += "\nmean of error: {}".format(np.mean(error))
-    print ("max of error: {}".format(error.max()))
-    discript += "\nmax of error: {}".format(error.max())
-    print ("min of error: {}".format(error.min()))
-    discript += "\nmin of error: {}".format(error.min())
+    # print ("mean of error: {}".format(np.mean(error)))
+    tmp_str = "mean of error: {}".format(np.mean(error))
+    print(tmp_str)
+    discript += '\n' + tmp_str
+    # print ("max of error: {}".format(error.max()))
+    tmp_str = "max of error: {}".format(error.max())
+    print(tmp_str)
+    discript += '\n' + tmp_str
+    # print ("min of error: {}".format(error.min()))
+    tmp_str = "min of error: {}".format(error.min())
+    print(tmp_str)
+    discript += '\n' + tmp_str
 
     n,bins,patches = plt.hist(error,20,facecolor='green',alpha=0.5)
     plt.xlabel('error')

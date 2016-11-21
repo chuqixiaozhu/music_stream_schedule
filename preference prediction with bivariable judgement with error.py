@@ -116,11 +116,12 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
 
     test_count = len(error)
     error_mean = np.mean(error)
+    # error_threshold = error_mean
+    error_threshold = error_mean/2
+    # error_threshold = mse
     right_count = 0
     for delta in error:
-        if abs(delta) <= error_mean/2:
-        # if abs(delta) <= error_mean:
-        # if abs(delta) <= mse:
+        if abs(delta) <= error_threshold:
             right_count += 1
     ratio_predict = right_count / test_count
     # print("Number of test: {}".format(test_count))
@@ -136,7 +137,7 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
     for i in index:
         track_time_test_all.append(track_time_all[i])
     track_time_mean = np.mean(track_time_test_all)
-    ratio_error2tracktime = error_mean / track_time_mean
+    ratio_error2tracktime = error_threshold / track_time_mean
     tmp_str = \
         "Ratio of mean error to mean track time: {:.1f}%".format(ratio_error2tracktime*100)
     print(tmp_str)

@@ -5,22 +5,11 @@ import matplotlib.pyplot as plt
 #import cv2
 import csv
 import os
+from get_marks import get_marks
+from get_marks import is_same_interval
+from table_of_confussion import get_table_of_confussion 
 
 def predict_bivar_judge_with_error(in_file, in_filename, out_address):
-    # load data
-    #with open('G:\\vs2010\\test set and training set\\user_000002_time.tsv','rU') as tsvin, open('G:\\vs2010\\test set and training set\\test.csv','wb') as csvout:
-    #    tsvin = csv.reader(tsvin,delimiter = '\t')
-    #    csvout = csv.writer(csvout,delimiter = '\t')
-    #    for row in tsvin:
-    #        count = row[3]
-    #        try:
-    #            float(count)
-    #            if float(count) <= 1 and float(count) > 0:
-    #                data = [row[5]+','+row[7]+','+row[3]]
-    #                csvout.writerows(data)
-    #        except ValueError:
-    #            print "Not a float"
-
     # tansfer string to number so that we can train
     data = []
     track_time_all = []
@@ -44,9 +33,6 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
 
             data.append([float(px),float(py),percentage])
 
-    #np.save('G:/vs2010/test set and training set/feature2', data)
-
-
     #training two randomforestregressor models, one for judge whether it is 1 or 0, the other is used to judge the specific number less than zero
     data = np.asarray(data,dtype='float')
     #gmm1 = mixture.GaussianMixture(n_components=7,covariance_type='full')
@@ -54,7 +40,7 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
 
     not_one_index = np.where(data[:,2]!=1)[0]
     zero_y = data.copy()
-    zero_y[not_one_index,2] = 0
+    zero_y[not_one_index,2] = 0 # 0 means Skip
     #gmm1.fit(data[:,:2],y = zero_y[:,2])
     #training phase
     train_start = 0
@@ -70,7 +56,9 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
     #predicting
     #result2 = gmm2.predict(data[300:400,:2])
 
+    ###################################################
     #predicting phase
+    ###################################################
     #result = gmm1.predict(data[300:400,:2])
     # test_start = 22000
     test_start = train_end
@@ -85,20 +73,42 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
     result = result.astype(float)
     none_zero_index = np.where(result>=0.5)
     zero_index = np.where(result<0.5)
-    result[none_zero_index] = 1
-    result[zero_index] = 0
-    #calculate the precision
+    result[none_zero_index] = 1 # 1 means Non-Skip
+    result[zero_index] = 0 # 0 means Skip
+    ###################################################
+    #calculate the precision for 1st judgement
+    ###################################################
     counter = 0
     i = 0
     for item in result:
         if item==zero_y[i+test_start,2]:
             counter += 1
         i+=1
-    tmp_str = "precision of 0-1 judge: {0:.1f}%".format(float(counter)/len(test_index)*100)
-    # print ("precision of 0-1 judge: {0:.0f}%".format(float(counter)/len(test_index)*100))
+    # tmp_str = "precision of 0-1 judge: {0:.1f}%".format(float(counter)/len(test_index)*100)
+    # print(tmp_str)
+    # discript = tmp_str
+
+    A = zero_y[test_start:,2]
+    P = result
+    tc = get_table_of_confussion(A, P)
+    tp = tc['TP'] # True Positive 
+    tn = tc['TN'] # True Negative
+    fp = tc['FP'] # False Positive
+    fn = tc['FN'] # False Negative
+    accuracy = (tp + tn) / len(P)
+    precision = tp / (tp + fp)
+    recall = tp / (tp + fn)
+    f1_score = 2*tp / (2*tp + fp + fn)
+    tmp_str = '0-1 Judge: Accuracy: ' + str(accuracy) + '\n' + \
+                'Precision: ' + str(precision) + '\n' + \
+                'Recall: ' + str(recall) + '\n' + \
+                'F1 Score: ' + str(f1_score)
     print(tmp_str)
     discript = tmp_str
 
+    ###################################################
+    # Predict skip point
+    ###################################################
     index = np.copy(test_index)
     index = list(index)
     for t in none_zero_index[0]:
@@ -110,73 +120,97 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
         print("Exception: the 2nd prediction failed.")
         return
     result2 = result2.astype(float)
-    # error = result2-data[index,2]
     error = abs(result2-data[index,2])
-    mse = sum(error**2) / len(error)
 
-    test_count = len(error)
-    error_mean = np.mean(error)
-    # error_threshold = error_mean
-    error_threshold = error_mean/2
-    # error_threshold = mse
-    right_count = 0
-    for delta in error:
-        if abs(delta) <= error_threshold:
-            right_count += 1
-    ratio_predict = right_count / test_count
-    # print("Number of test: {}".format(test_count))
-    tmp_str = "Number of test: {}".format(test_count)
-    print(tmp_str)
-    discript += '\n' + tmp_str
-    # print("Precision of skip judge: {:f}%".format(ratio_predict * 100))
-    tmp_str = "Precision of skip judge: {:.1f}%".format(ratio_predict * 100)
-    print(tmp_str)
-    discript += '\n' + tmp_str
-    # track_time_all = np.asarray(track_time_all[test_start:], dtype=float)
-    track_time_test_all = []
-    for i in index:
-        track_time_test_all.append(track_time_all[i])
-    track_time_mean = np.mean(track_time_test_all)
-    ratio_error2tracktime = error_threshold / track_time_mean
-    tmp_str = \
-        "Ratio of mean error to mean track time: {:.1f}%".format(ratio_error2tracktime*100)
+    ###################################################
+    # Calculate 2nd Predict Accuracy
+    ###################################################
+    A = data[index,2]
+    P = result2
+    test_amount = len(P)
+    true_count = 0
+    marks = get_marks(count=1, lower=0, upper=1)
+    for i in range(test_amount):
+        act = A[i]
+        pre = P[i]
+        print("@136 act:", act, "pre:", pre)#test
+        if is_same_interval(act, pre, marks):
+            true_count += 1
+    accuracy = true_count / test_amount
+    tmp_str = "Precision of skip judge: {}%".format(accuracy * 100)
     print(tmp_str)
     discript += '\n' + tmp_str
 
-    # print ("mean of error: {}".format(np.mean(error)))
-    tmp_str = "mean of error: {}".format(np.mean(error))
+    good_count = 0
+    for i in range(test_amount):
+        act = A[i]
+        pre = P[i]
+        if pre >= act:
+            good_count += 1
+    user_exp = good_count / test_amount
+    tmp_str = "User experience: {}%".format(user_exp * 100)
     print(tmp_str)
-    discript += '\n' + tmp_str
-    # print ("max of error: {}".format(error.max()))
-    tmp_str = "max of error: {}".format(error.max())
-    print(tmp_str)
-    discript += '\n' + tmp_str
-    # print ("min of error: {}".format(error.min()))
-    tmp_str = "min of error: {}".format(error.min())
-    print(tmp_str)
-    discript += '\n' + tmp_str
+    discript += '\n' +tmp_str
 
-    n,bins,patches = plt.hist(error,20,facecolor='green',alpha=0.5)
-    plt.xlabel('error')
-    plt.ylabel('number')
-    plt.title(r'Histogram of prediction error')
+    # test_count = len(error)
+    # error_mean = np.mean(error)
+    # # error_threshold = error_mean
+    # error_threshold = error_mean/2
+    # right_count = 0
+    # for delta in error:
+    #     if abs(delta) <= error_threshold:
+    #         right_count += 1
+    # ratio_predict = right_count / test_count
+    # tmp_str = "Number of test: {}".format(test_count)
+    # print(tmp_str)
+    # discript += '\n' + tmp_str
+    # tmp_str = "Precision of skip judge: {:.1f}%".format(ratio_predict * 100)
+    # print(tmp_str)
+    # discript += '\n' + tmp_str
+    # track_time_test_all = []
+    # for i in index:
+    #     track_time_test_all.append(track_time_all[i])
+    # track_time_mean = np.mean(track_time_test_all)
+    # ratio_error2tracktime = error_threshold / track_time_mean
+    # tmp_str = \
+    #     "Ratio of mean error to mean track time: {:.1f}%".format(ratio_error2tracktime*100)
+    # print(tmp_str)
+    # discript += '\n' + tmp_str
+    # tmp_str = "mean of error: {}".format(np.mean(error))
+    # print(tmp_str)
+    # discript += '\n' + tmp_str
+    # tmp_str = "max of error: {}".format(error.max())
+    # print(tmp_str)
+    # discript += '\n' + tmp_str
+    # tmp_str = "min of error: {}".format(error.min())
+    # print(tmp_str)
+    # discript += '\n' + tmp_str
 
+    ###################################################
+    # Plot a figure
+    ###################################################
+    # n,bins,patches = plt.hist(error,20,facecolor='green',alpha=0.5)
+    # plt.xlabel('error')
+    # plt.ylabel('number')
+    # plt.title(r'Histogram of prediction error')
     # plt.show()
+
     file_name = in_filename[:-9]
-    out_file_text = out_address + file_name + '_bi_predict_with_error.txt'
-    out_file_png = out_address + file_name + '_bi_predict_with_error.png'
+    out_file_text = out_address + file_name + '_bi_predict_with_partition.txt'
     with open(out_file_text, 'w') as output:
         output.write(discript)
-    plt.savefig(out_file_png)
+    # out_file_png = out_address + file_name + '_bi_predict_with_error.png'
+    # plt.savefig(out_file_png)
 
 if __name__ == '__main__':
-    # data_address_prefix = '/scratch/zpeng.scratch/pppp/music/data/listen_tmp/'
-    data_address_prefix = '/scratch/zpeng.scratch/pppp/music/data/listen/'
+    data_address_prefix = '/scratch/zpeng.scratch/pppp/music/data/listen_tmp/'
+    # data_address_prefix = '/scratch/zpeng.scratch/pppp/music/data/listen/'
     result_address_prefix = \
-        '/scratch/zpeng.scratch/pppp/music/data/predict_bi_with_error/'
+        '/scratch/zpeng.scratch/pppp/music/data/predict_bi_with_partition/'
     data_files = os.listdir(data_address_prefix)
     data_files.sort()
     for file in data_files:
         file_in = data_address_prefix + file
         print("in:", file_in)
         predict_bivar_judge_with_error(file_in, file, result_address_prefix)
+

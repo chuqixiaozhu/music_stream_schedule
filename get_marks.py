@@ -16,6 +16,19 @@ def get_marks(count=10, lower=0, upper=1):
 
     return marks
 
+def get_label(val, marks):
+    totle = len(marks)
+    for i in range(totle - 1):
+        lower = marks[i]
+        upper = marks[i+1]
+        if i == 0:
+            if lower < val and val < upper:
+                return i
+            continue
+        if lower <= val and val < upper:
+            return i
+    return i + 1 # Other class
+
 def is_same_interval(act, pre, marks):
     total = len(marks)
 

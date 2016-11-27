@@ -1,12 +1,14 @@
 import numpy as np
 from sklearn import mixture
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestClassifier
 import matplotlib.pyplot as plt
 #import cv2
 import csv
 import os
 from get_marks import get_marks
 from get_marks import is_same_interval
+from get_marks import get_label
 from table_of_confussion import get_table_of_confussion 
 
 def predict_bivar_judge_with_error(in_file, in_filename, out_address):
@@ -31,6 +33,9 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
                 py = int(item)^py
             py = float(py)/100
 
+            # if float(percentage) > 1.0:
+            #     percentage = '1.0' # 1 means non-skip
+
             data.append([float(px),float(py),percentage])
 
     #training two randomforestregressor models, one for judge whether it is 1 or 0, the other is used to judge the specific number less than zero
@@ -48,16 +53,11 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
     train_end = int(np.floor(data.shape[0] * 2/3))
     estimator.fit(data[train_start:train_end,:2],y = zero_y[train_start:train_end,2])
 
-    #training another model to find the exact number
-    #gmm2 = mixture.GaussianMixture(n_components=5,covariance_type='full')
-    estimator2 = RandomForestRegressor(n_estimators = 100)
-    #gmm2.fit(data[:,:2],y = data[:,2])
-    estimator2.fit(data[train_start:train_end,:2],y = data[train_start:train_end,2])
     #predicting
     #result2 = gmm2.predict(data[300:400,:2])
 
     ###################################################
-    #predicting phase
+    # 1st Predicting phase
     ###################################################
     #result = gmm1.predict(data[300:400,:2])
     # test_start = 22000
@@ -76,7 +76,7 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
     result[none_zero_index] = 1 # 1 means Non-Skip
     result[zero_index] = 0 # 0 means Skip
     ###################################################
-    #calculate the precision for 1st judgement
+    # Calculate the precision for 1st judgement
     ###################################################
     counter = 0
     i = 0
@@ -109,6 +109,21 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
     ###################################################
     # Predict skip point
     ###################################################
+    one_index = np.where(data[:,2] >= 1)[0]
+    data[one_index,2] = 1 # 1 means Non-Skip
+    marks = get_marks(count=10, lower=0, upper=1)
+    for i in range(data.shape[0]):
+        sp = data[i,2]
+        label = get_label(sp, marks)
+        data[i,2] = int(label)
+
+    #training another model to find the exact number
+    #gmm2 = mixture.GaussianMixture(n_components=5,covariance_type='full')
+    # estimator2 = RandomForestRegressor(n_estimators = 100)
+    estimator2 = RandomForestClassifier(n_estimators = 100)
+    #gmm2.fit(data[:,:2],y = data[:,2])
+    estimator2.fit(data[train_start:train_end,:2],y = data[train_start:train_end,2])
+
     index = np.copy(test_index)
     index = list(index)
     for t in none_zero_index[0]:
@@ -119,8 +134,8 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
     except:
         print("Exception: the 2nd prediction failed.")
         return
-    result2 = result2.astype(float)
-    error = abs(result2-data[index,2])
+    # result2 = result2.astype(float) # !!!!!!!!!!!!!!!!!!!!!!!
+    # error = abs(result2-data[index,2])
 
     ###################################################
     # Calculate 2nd Predict Accuracy
@@ -129,12 +144,12 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
     P = result2
     test_amount = len(P)
     true_count = 0
-    marks = get_marks(count=1, lower=0, upper=1)
+    # marks = get_marks(count=10, lower=0, upper=1)
     for i in range(test_amount):
         act = A[i]
         pre = P[i]
-        print("@136 act:", act, "pre:", pre)#test
-        if is_same_interval(act, pre, marks):
+        # if is_same_interval(act, pre, marks):
+        if act == pre:
             true_count += 1
     accuracy = true_count / test_amount
     tmp_str = "Precision of skip judge: {}%".format(accuracy * 100)
@@ -203,8 +218,8 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
     # plt.savefig(out_file_png)
 
 if __name__ == '__main__':
-    data_address_prefix = '/scratch/zpeng.scratch/pppp/music/data/listen_tmp/'
-    # data_address_prefix = '/scratch/zpeng.scratch/pppp/music/data/listen/'
+    # data_address_prefix = '/scratch/zpeng.scratch/pppp/music/data/listen_tmp/'
+    data_address_prefix = '/scratch/zpeng.scratch/pppp/music/data/listen/'
     result_address_prefix = \
         '/scratch/zpeng.scratch/pppp/music/data/predict_bi_with_partition/'
     data_files = os.listdir(data_address_prefix)

@@ -33,19 +33,19 @@ def test():
     for i in range(10):
         pass
     print("i:", i)
-    val = 0.9999
+    val = 1.2341
     label = get_label(val, marks)
     print("label:", label)
-    a = (3,5)
-    print("a[0]:", a[0])
-    a = np.arange(6).reshape(3,2)
-    b = a.shape[0]
-    print("b:", b)
-    a = 1
-    print("a:", a)
-    a = 6.0
-    b = 6
-    print("a == b :", a == b)
+    # a = (3,5)
+    # print("a[0]:", a[0])
+    # a = np.arange(6).reshape(3,2)
+    # b = a.shape[0]
+    # print("b:", b)
+    # a = 1
+    # print("a:", a)
+    # a = 6.0
+    # b = 6
+    # print("a == b :", a == b)
 
 if __name__ == '__main__':
     test()

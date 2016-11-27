@@ -18,8 +18,9 @@ set ytics 20
 set mytics 2
 set format y "%.1f\%%"
 set grid
-set key box
-set key Left
+# set key box
+# set key Left
+unset key
 
 #########################################################
 # set style data histogram
@@ -32,6 +33,6 @@ set key Left
 #set key width 10
 #set key spacing 10
 #set key right top at 4.93, 78.2
-plot "user_skip_ratio.txt" using 1:($2*100) w lp lt 1 lw 2 pt 5 ps 2 title "half"
+plot "user_skip_ratio.txt" using 1:($2*100) w lp lt 1 lw 2 pt 5 ps 2 #title "half"
 set output
 #!pdftops -eps 20_m_num_vs_vt.pdf

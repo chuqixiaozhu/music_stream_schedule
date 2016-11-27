@@ -14,13 +14,13 @@ from table_of_confussion import get_table_of_confussion
 def predict_bivar_judge_with_error(in_file, in_filename, out_address):
     # tansfer string to number so that we can train
     data = []
-    track_time_all = []
+    # track_time_all = []
     # with open('/scratch/zpeng.scratch/pppp/music/data/listen/user_000002_time.tsv') as f:
     with open(in_file, 'r') as f:
         for line in f:
             # song,l,artist,percentage,a4,a5,a6 = line.split(",")
             userid,lt,tt,percentage,artid,artist,traid,song = line.split('\t')
-            track_time_all.append(float(tt)/1000)
+            # track_time_all.append(float(tt)/1000)
             bb = [bin(ord(c))[2:] for c in song]
             px = 0
             for item in bb:
@@ -40,21 +40,30 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
 
     #training two randomforestregressor models, one for judge whether it is 1 or 0, the other is used to judge the specific number less than zero
     data = np.asarray(data,dtype='float')
-    #gmm1 = mixture.GaussianMixture(n_components=7,covariance_type='full')
-    estimator = RandomForestRegressor(n_estimators = 100)
+    estimator = RandomForestRegressor(n_estimators = 100) # origin
+    # estimator = RandomForestClassifier(n_estimators = 100)
 
-    not_one_index = np.where(data[:,2]!=1)[0]
     zero_y = data.copy()
+    # origin
+    not_one_index = np.where(data[:,2]!=1)[0] # 1 means Non-Skip
     zero_y[not_one_index,2] = 0 # 0 means Skip
-    #gmm1.fit(data[:,:2],y = zero_y[:,2])
+    # /origin
+
     #training phase
     train_start = 0
-    # train_end = 22000
     train_end = int(np.floor(data.shape[0] * 2/3))
-    estimator.fit(data[train_start:train_end,:2],y = zero_y[train_start:train_end,2])
+    # # label
+    # marks = get_marks(count=10, lower=0, upper=1)
+    # label_max = len(marks) - 1
+    # for i in range(zero_y.shape[0]):
+    #     sp = zero_y[i,2]
+    #     label = get_label(sp, marks)
+    #     if label != label_max:
+    #         label = 0 # 0 means Skip
+    #     zero_y[i,2] = label
+    # # /label
 
-    #predicting
-    #result2 = gmm2.predict(data[300:400,:2])
+    estimator.fit(data[train_start:train_end,:2],y = zero_y[train_start:train_end,2])
 
     ###################################################
     # 1st Predicting phase
@@ -66,21 +75,25 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
     # test_index = [t for t in xrange(test_start,test_end)]
     test_index = [t for t in range(test_start,test_end)]
     try:
-        result = estimator.predict(data[test_index,:2])
+        result = estimator.predict(data[test_index,:2]) #origin
+        # result = estimator.predict(zero_y[test_index,:2])
     except:
         print("Exception: the 1st prediction failed.")
         return
     result = result.astype(float)
+    # origin
     none_zero_index = np.where(result>=0.5)
     zero_index = np.where(result<0.5)
     result[none_zero_index] = 1 # 1 means Non-Skip
     result[zero_index] = 0 # 0 means Skip
+    # /origin
     ###################################################
     # Calculate the precision for 1st judgement
     ###################################################
     counter = 0
     i = 0
     for item in result:
+        print("@95 zero_y[{},2]: {}".format(i+test_start, zero_y[i+test_start,2]), "item:", item)#test
         if item==zero_y[i+test_start,2]:
             counter += 1
         i+=1
@@ -109,13 +122,13 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
     ###################################################
     # Predict skip point
     ###################################################
-    one_index = np.where(data[:,2] >= 1)[0]
-    data[one_index,2] = 1 # 1 means Non-Skip
+    # one_index = np.where(data[:,2] >= 1)[0]
+    # data[one_index,2] = 1 # 1 means Non-Skip
     marks = get_marks(count=10, lower=0, upper=1)
     for i in range(data.shape[0]):
         sp = data[i,2]
         label = get_label(sp, marks)
-        data[i,2] = int(label)
+        data[i,2] = label
 
     #training another model to find the exact number
     #gmm2 = mixture.GaussianMixture(n_components=5,covariance_type='full')
@@ -218,8 +231,8 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
     # plt.savefig(out_file_png)
 
 if __name__ == '__main__':
-    # data_address_prefix = '/scratch/zpeng.scratch/pppp/music/data/listen_tmp/'
-    data_address_prefix = '/scratch/zpeng.scratch/pppp/music/data/listen/'
+    data_address_prefix = '/scratch/zpeng.scratch/pppp/music/data/listen_tmp/'
+    # data_address_prefix = '/scratch/zpeng.scratch/pppp/music/data/listen/'
     result_address_prefix = \
         '/scratch/zpeng.scratch/pppp/music/data/predict_bi_with_partition/'
     data_files = os.listdir(data_address_prefix)

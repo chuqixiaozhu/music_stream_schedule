@@ -40,10 +40,10 @@ def get_all_results(file, userid):
                 f1_score = num_str
                 write2file(f1_file, userid, f1_score)
             elif i == skip_accuracy_loc:
-                skip_accuracy = num_str[:-1]
+                skip_accuracy = num_str
                 write2file(skip_accuracy_file, userid, skip_accuracy)
             elif i == user_exp_loc:
-                user_exp = num_str[:-1]
+                user_exp = num_str
                 write2file(user_exp_file, userid, user_exp)
 
 def clear_files():

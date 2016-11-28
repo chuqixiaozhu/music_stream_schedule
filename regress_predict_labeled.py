@@ -61,7 +61,8 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
             label = 0 # 0 means Skip
         zero_y[i,2] = label
     # /label
-    estimator = RandomForestClassifier(n_estimators = 100)
+    # estimator = RandomForestClassifier(n_estimators = 100)
+    estimator = RandomForestRegressor(n_estimators = 100)
     try:
         estimator.fit(data[train_start:train_end,:2],y = zero_y[train_start:train_end,2])
     except:
@@ -104,6 +105,18 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
     except:
         print("Exception: the 1st prediction failed.")
         return
+    ################
+    # Regression
+    ################
+    result1 = result1.astype(float)
+    # origin
+    none_zero_index = np.where(result1 >= label_max/2)
+    zero_index = np.where(result1 < label_max/2)
+    result1[none_zero_index] = label_max #  means Non-Skip
+    result1[zero_index] = 0 # 0 means Skip
+    ################
+    # /Regression
+    ################
     ###################################################
     # Calculate the precision for 1st judgement
     ###################################################

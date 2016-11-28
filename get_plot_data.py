@@ -1,5 +1,5 @@
 import os
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 def write2file(file_name, user_id, num_str):
     with open(file_name, 'a') as fout:

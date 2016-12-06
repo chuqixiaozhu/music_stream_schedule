@@ -10,6 +10,9 @@ from get_marks import get_marks
 from get_marks import is_same_interval
 from get_marks import get_label
 from table_of_confussion import get_table_of_confussion 
+from start_time_label import get_start_time_label
+
+label_index = 3
 
 def predict_bivar_judge_with_error(in_file, in_filename, out_address):
     # tansfer string to number so that we can train
@@ -19,7 +22,7 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
     with open(in_file, 'r') as f:
         for line in f:
             # song,l,artist,percentage,a4,a5,a6 = line.split(",")
-            userid,lt,tt,percentage,artid,artist,traid,song = line.split('\t')
+            userid,st,lt,tt,percentage,artid,artist,traid,song = line.split('\t')
             # track_time_all.append(float(tt)/1000)
             if float(percentage) > 1:
                 continue
@@ -207,8 +210,8 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
     # plt.savefig(out_file_png)
 
 if __name__ == '__main__':
-    # data_address_prefix = '/scratch/zpeng.scratch/pppp/music/data/listen_tmp/'
-    data_address_prefix = '/scratch/zpeng.scratch/pppp/music/data/listen/'
+    data_address_prefix = '/scratch/zpeng.scratch/pppp/music/data/listen_tmp/'
+    # data_address_prefix = '/scratch/zpeng.scratch/pppp/music/data/listen/'
     result_address_prefix = \
         '/scratch/zpeng.scratch/pppp/music/data/predict_bi_with_partition/'
     data_files = os.listdir(data_address_prefix)

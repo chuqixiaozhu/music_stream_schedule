@@ -1,7 +1,7 @@
 import numpy as np
 from sklearn import mixture
 from sklearn.ensemble import RandomForestRegressor
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 #import cv2
 import csv
 import os
@@ -46,6 +46,10 @@ def test():
     # a = 6.0
     # b = 6
     # print("a == b :", a == b)
+    a = np.arange(15).reshape(5,3)
+    b = a[2,-1]
+    print(a)
+    print(b)
 
 if __name__ == '__main__':
     test()

@@ -5,11 +5,17 @@ def get_skip_ratio(file):
         count = 0
         total = 0
         for line in fin:
-            total += 1
             userid,lt,tt,percentage,artid,artist,traid,song = line.split('\t')
+            if float(percentage) >1:
+                continue
+            total += 1
             if float(percentage) < 1:
                 count += 1
-        return count/total
+        if total == 0:
+            result = 0
+        else:
+            result = count/total
+        return result
 
 if __name__ == '__main__':
     data_address_prefix = '/scratch/zpeng.scratch/pppp/music/data/listen/'

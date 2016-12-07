@@ -3,7 +3,7 @@
 #set terminal postscript eps color solid font "Times New Roman, 20"
 set terminal postscript eps color solid font ",20"
 #set terminal emf color solid enhanced font "Times New Roman, 20"
-set output "skip_ratio_vs_id.eps"
+set output "user_record_num_vs_id.eps"
 #set terminal qt font "Times New Roman, 20"
 #set xlabel "{/SimSun=20 空洞数量}"
 set xlabel "User ID"
@@ -12,11 +12,11 @@ set xtics 10
 set xtics add ("1" 1)
 set mxtics 1
 #set ylabel "{/SimSun=20 有效监测时间率 (%)}"
-set ylabel "Skip Ratio (%)"
-set yrange [0:100]
-set ytics 20
-set mytics 2
-set format y "%.1f\%%"
+set ylabel "Number of Records"
+set yrange [0:60000]
+set ytics 10000
+set mytics 1
+# set format y "%.1f"
 set grid
 # set key box
 # set key Left
@@ -33,6 +33,6 @@ unset key
 #set key width 10
 #set key spacing 10
 #set key right top at 4.93, 78.2
-plot "user_skip_ratio.txt" using 1:($2*100) w lp lt 1 lw 2 pt 5 ps 2 #title "half"
+plot "user_record_num.txt" using 1:($2) w lp lt 1 lw 2 pt 5 ps 2 #title "half"
 set output
 #!pdftops -eps 20_m_num_vs_vt.pdf

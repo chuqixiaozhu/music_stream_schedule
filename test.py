@@ -51,5 +51,9 @@ def test():
     print(a)
     print(b)
 
+    a = 0
+    a -= 1 if True else 0
+    print(a)
+
 if __name__ == '__main__':
     test()

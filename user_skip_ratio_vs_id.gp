@@ -1,9 +1,10 @@
 #set terminal pdfcairo enhanced font "Times New Roman, 20"
 #set output "20_m_num_vs_vt.pdf"
 #set terminal postscript eps color solid font "Times New Roman, 20"
-set terminal postscript eps color solid font ",20"
+# set terminal postscript eps color solid font ",20"
+set terminal pdf
 #set terminal emf color solid enhanced font "Times New Roman, 20"
-set output "skip_ratio_vs_id.eps"
+set output "user_skip_ratio_vs_id.pdf"
 #set terminal qt font "Times New Roman, 20"
 #set xlabel "{/SimSun=20 空洞数量}"
 set xlabel "User ID"
@@ -33,6 +34,6 @@ unset key
 #set key width 10
 #set key spacing 10
 #set key right top at 4.93, 78.2
-plot "user_skip_ratio.txt" using 1:($2*100) w lp lt 1 lw 2 pt 5 ps 2 #title "half"
+plot "user_skip_ratio.txt" using 1:($2*100) w lp lt 1 lw 2 pt 5 ps 1 #title "half"
 set output
-#!pdftops -eps 20_m_num_vs_vt.pdf
+#!pdftops -pdf 20_m_num_vs_vt.pdf

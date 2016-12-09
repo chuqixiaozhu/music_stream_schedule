@@ -12,6 +12,7 @@ from get_marks import get_label
 from table_of_confussion import get_table_of_confussion 
 from start_time_label import get_start_time_label
 
+skip_labels_num = 5
 # sp_index = 0
 
 def predict_bivar_judge_with_error(in_file, in_filename, out_address):
@@ -58,7 +59,7 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
     zero_y = data.copy()
 
     # label: 0 means Skip, label_max means Non-Skip
-    marks = get_marks(count=10, lower=0, upper=1)
+    marks = get_marks(count=skip_labels_num, lower=0, upper=1)
     label_max = len(marks) - 1
     for i in range(zero_y.shape[0]):
         # sp = zero_y[i,2]

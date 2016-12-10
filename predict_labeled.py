@@ -12,7 +12,7 @@ from get_marks import get_label
 from table_of_confussion import get_table_of_confussion 
 from start_time_label import get_start_time_label
 
-skip_labels_num = 5
+skip_labels_num = 10
 # sp_index = 0
 
 def predict_bivar_judge_with_error(in_file, in_filename, out_address):
@@ -225,7 +225,7 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
     ###################################################
     # file_name = in_filename[:-9]
     file_name = in_filename[:11]
-    out_file_text = out_address + file_name + '_bi_predict_with_partition.txt'
+    out_file_text = out_address + file_name + '_bi_predict_with_start_time.txt'
     with open(out_file_text, 'w') as output:
         output.write(discript)
     # out_file_png = out_address + file_name + '_bi_predict_with_error.png'

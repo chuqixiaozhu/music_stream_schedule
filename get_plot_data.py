@@ -51,8 +51,9 @@ def get_all_results(file, userid):
                 overall_accuray = num_str
                 write2file(overall_accuray_file, userid, overall_accuray)
             elif i == user_exp_loc:
-                user_exp = num_str
-                write2file(user_exp_file, userid, user_exp)
+                user_exp = float(num_str)
+                user_exp = 1 - user_exp
+                write2file(user_exp_file, userid, str(user_exp))
 
 def clear_files():
     accuracy_file = address + 'accuracy1.txt'

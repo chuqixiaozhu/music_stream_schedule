@@ -55,8 +55,8 @@ set ylabel "F-measure of 1st Predictor (%)"
 plot "f1.txt" using 1:($2*100) w lp lt 1 lw 2 pt 5 ps 1 title ""
 set output
 
-set output "2st_accuracy_vs_id.pdf"
-set ylabel "Accuracy of 2st Predictor (%)"
+set output "2nd_accuracy_vs_id.pdf"
+set ylabel "Accuracy of 2nd Predictor (%)"
 # plot "f1.txt" using ($2*100) ti col
 plot "accuracy2.txt" using 1:($2*100) w lp lt 1 lw 2 pt 5 ps 1 title ""
 set output

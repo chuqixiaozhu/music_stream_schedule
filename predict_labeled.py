@@ -18,6 +18,8 @@ skip_labels_num = 10
 def predict_bivar_judge_with_error(in_file, in_filename, out_address):
     # tansfer string to number so that we can train
     data = []
+    song_length = list()
+    song_length_amount = 0
     # track_time_all = []
     # with open('/scratch/zpeng.scratch/pppp/music/data/listen/user_000002_time.tsv') as f:
     with open(in_file, 'r') as f:
@@ -44,6 +46,8 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
             #     percentage = '1.0' # 1 means non-skip
 
             data.append([float(px),float(py),float(start_label),percentage])
+            song_length.append(float(tt))
+            song_length_amount += float(tt)
             # data.append([percentage,float(px),float(py),float(start_label)])
 
     #training two randomforestregressor models, one for judge whether it is 1 or 0, the other is used to judge the specific number less than zero
@@ -164,6 +168,15 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
     print(tmp_str)
     discript = tmp_str
 
+    save_amount = 0 # saved length
+    save_amount_naive = 0
+    for i in range(test_amount1):
+        act = A[i]
+        pre = P[i]
+        if pre == 0 and act == 0:
+            save_amount += song_length[test_index1[i]]
+        if pre == 0:
+            save_amount_naive += song_length[test_index1[i]]
     ###################################################
     # 2n Prediction 
     ###################################################
@@ -203,6 +216,17 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
     tmp_str = "Accuracy of 2nd Prediction: {}".format(accuracy2)
     print(tmp_str)
     discript += '\n' + tmp_str
+
+    for i in range(test_amount2):
+        act = A[i]
+        pre = P[i]
+        if pre >= act:
+            tmp_length = song_length[test_index2[i]]
+            tmp_save = (label_max - 1 - pre) / label_max * tmp_length
+            save_amount += tmp_save
+        tmp_length = song_length[test_index2[i]]
+        tmp_save = (label_max - 1 - pre) / label_max * tmp_length
+        save_amount_naive += tmp_save
     # accuracy = true_count2 / test_amount
     ###################################################
     # Calculate The Whole Accuracy
@@ -220,6 +244,14 @@ def predict_bivar_judge_with_error(in_file, in_filename, out_address):
     print(tmp_str)
     discript += '\n' + tmp_str
 
+    saved_length_ratio = save_amount/song_length_amount
+    tmp_str = "Percent of Saved Length: {}".format(saved_length_ratio)
+    print(tmp_str)
+    discript += '\n' + tmp_str
+    saved_length_naive_ratio = save_amount_naive/song_length_amount
+    tmp_str = "Percent of Saved Length (naive): {}".format(saved_length_naive_ratio)
+    print(tmp_str)
+    discript += '\n' + tmp_str
     ###################################################
     # Plot a figure
     ###################################################

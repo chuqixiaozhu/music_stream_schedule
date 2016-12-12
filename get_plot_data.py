@@ -2,6 +2,25 @@ import os
 #import matplotlib.pyplot as plt
 
 address = 'results_txt/'
+accuracy_file = address + 'accuracy1.txt'
+precision_file = address + 'precision.txt'
+recall_file = address + 'recall.txt'
+f1_file = address + 'f1.txt'
+accuracy2_file = address + 'accuracy2.txt'
+overall_accuray_file = address + 'overall_accuracy.txt'
+user_exp_file = address + 'user_exp.txt'
+saved_energy_ratio_file = address + 'saved_energy_ratio.txt'
+saved_energy_ratio_naive_file = address + 'saved_energy_ratio_naive.txt'
+
+accuracy1_loc = 1
+precision_loc = 2
+recall_loc = 3
+f1_loc = 4
+accuracy2_loc = 5
+overall_accuracy_loc = 6
+user_exp_loc = 7
+saved_energy_ratio_loc = 8
+saved_energy_ratio_naive_loc = 9
 
 def write2file(file_name, user_id, num_str):
     with open(file_name, 'a') as fout:
@@ -9,22 +28,6 @@ def write2file(file_name, user_id, num_str):
 
 def get_all_results(file, userid):
     # location = 3
-    accuracy1_loc = 1
-    precision_loc = 2
-    recall_loc = 3
-    f1_loc = 4
-    accuracy2_loc = 5
-    overall_accuracy_loc = 6
-    user_exp_loc = 7
-
-    
-    accuracy_file = address + 'accuracy1.txt'
-    precision_file = address + 'precision.txt'
-    recall_file = address + 'recall.txt'
-    f1_file = address + 'f1.txt'
-    accuracy2_file = address + 'accuracy2.txt'
-    overall_accuray_file = address + 'overall_accuracy.txt'
-    user_exp_file = address + 'user_exp.txt'
 
     with open(file, 'r') as fin:
         i = 0
@@ -54,15 +57,14 @@ def get_all_results(file, userid):
                 user_exp = float(num_str)
                 user_exp = 1 - user_exp
                 write2file(user_exp_file, userid, str(user_exp))
+            elif i == saved_energy_ratio_loc:
+                saved_energy_ratio = num_str
+                write2file(saved_energy_ratio_file, userid, saved_energy_ratio)
+            elif i == saved_energy_ratio_naive_loc:
+                saved_energy_ratio_naive = num_str
+                write2file(saved_energy_ratio_naive_file, userid, saved_energy_ratio_naive)
 
 def clear_files():
-    accuracy_file = address + 'accuracy1.txt'
-    precision_file = address + 'precision.txt'
-    recall_file = address + 'recall.txt'
-    f1_file = address + 'f1.txt'
-    accuracy2_file = address + 'accuracy2.txt'
-    overall_accuray_file = address + 'overall_accuracy.txt'
-    user_exp_file = address + 'user_exp.txt'
 
     with open(accuracy_file, 'w') as fout:
         pass
@@ -77,6 +79,10 @@ def clear_files():
     with open(overall_accuray_file, 'w') as fout:
         pass
     with open(user_exp_file, 'w') as fout:
+        pass
+    with open(saved_energy_ratio_file, 'w') as fout:
+        pass
+    with open(saved_energy_ratio_naive_file, 'w') as fout:
         pass
 
 

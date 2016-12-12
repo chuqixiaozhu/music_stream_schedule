@@ -62,7 +62,7 @@ plot "accuracy2.txt" using 1:($2*100) w lp lt 1 lw 2 pt 5 ps 1 title ""
 set output
 
 set output "user_exp_vs_id.pdf"
-set ylabel "Stall Percentage (%)"
+set ylabel "Percent of Stalling (%)"
 # plot "user_exp.txt" using 2 ti col
 plot "user_exp.txt" using 1:($2*100) w lp lt 1 lw 2 pt 5 ps 1 title ""
 set output
@@ -71,4 +71,14 @@ set output "overall_accuracy_vs_id.pdf"
 set ylabel "Overall Accuracy (%)"
 # plot "skip_accuracy.txt" using 2 ti col
 plot "overall_accuracy.txt" using 1:($2*100) w lp lt 1 lw 2 pt 5 ps 1 title ""
+set output
+
+set output "saved_energy_ratio_vs_id.pdf"
+set ylabel "Saved Energy Ratio Without Stalling (%)"
+plot "saved_energy_ratio.txt" using 1:($2*100) w lp lt 1 lw 2 pt 5 ps 1 title ""
+set output
+
+set output "saved_energy_ratio_naive_vs_id.pdf"
+set ylabel "Saved Energy Ratio (%)"
+plot "saved_energy_ratio_naive.txt" using 1:($2*100) w lp lt 1 lw 2 pt 5 ps 1 title ""
 set output
